@@ -5,37 +5,14 @@ import { useTodo } from '../store/todoStore.ts';
 
 function TodoInput () {
 
-    const todos = useTodo((state) => state.todos)
-    const updateTodos = useTodo((state) => state.updateTodos)
     const [appendable, setAppendable] = useState('')
+    const addTodo = useTodo((state) => state.addTodo)
 
-    const getNextId = (useUserIds: boolean) => {
-        let ids: Array<number> = []
-        if (!useUserIds) {
-            ids = todos.map((td) => td.id)
-        }   else {
-            ids = todos.map((td) => td.userId)
-        }
-        let maxId = ids.length > 0 ? Math.max(...ids) : 1
-        return maxId + 1 
-    }
-    
-    const addTodo = (todo: string) => {
-        let newId = getNextId(false)
-        let newUserId = getNextId(true)
-
-        let newTodo = {
-            'userId': newUserId,
-            'title': todo,
-            'id': newId,
-            'completed': false
-        }
-        if (todo !== '') {
-            updateTodos([newTodo, ...todos])
-        }
+    const addTodoWithSideEffects = (todo: string) => {
+        addTodo(todo)
         setAppendable('')
-        
     }
+
     return (
         <div id='todo-input' className="pb-5 object-center sticky">
             <Space.Compact style={{ width: '100%' }}>
@@ -43,9 +20,10 @@ function TodoInput () {
                     variant="outlined" 
                     placeholder='Enter text to add a to-do item'
                     onChange={e => setAppendable(e.target.value)}
+                    onPressEnter={() => addTodoWithSideEffects(appendable)}
                     value={appendable}
                 />
-                <Button type="primary" onClick={() => addTodo(appendable)}><PlusOutlined/></Button>
+                <Button type="primary" onClick={() => addTodoWithSideEffects(appendable)}><PlusOutlined/></Button>
             </Space.Compact>
         </div>
     )

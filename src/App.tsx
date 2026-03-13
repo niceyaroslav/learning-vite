@@ -6,12 +6,7 @@ import { useTodo } from './store/todoStore.ts';
 import { fetchTodos } from './api/todos.ts';
 
 
-// import Counter from './components/Counter.tsx'
-// import SearchFilter from './components/SearchFilter.tsx'
-
 function App() {
-
-  // let todos: Array<Todo>= []
 
   const todos = useTodo((state) => state.todos)
   const updateTodos = useTodo((state) => state.updateTodos)
