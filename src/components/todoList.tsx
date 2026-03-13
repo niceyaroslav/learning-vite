@@ -2,7 +2,7 @@ import TodoItem  from './todoItem.tsx';
 import type { Todo } from '../store/todoStore.ts';
 
 type TodoListProps = {
-    todos: Array<Todo>
+    todos: Todo[]
 }
 
 function TodoList ({todos}: TodoListProps) {

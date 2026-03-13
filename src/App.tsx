@@ -3,10 +3,16 @@ import './App.css'
 import TodoInput from './components/todoInput.tsx'
 import TodoList from './components/todoList.tsx'
 import { useTodo } from './store/todoStore.ts';
+import type { Todo } from './store/todoStore.ts';
 import { fetchTodos } from './api/todos.ts';
+// import {
+//   QueryClient,
+//   QueryClientProvider,
+//   useQuery,
+// } from '@tanstack/react-query'
 
 
-function App() {
+export default function App () {
 
   const todos = useTodo((state) => state.todos)
   const updateTodos = useTodo((state) => state.updateTodos)
@@ -16,7 +22,7 @@ function App() {
       fetchTodos().then(
         (fetchedTodos) => {
           if (fetchedTodos.length !== 0) {
-            updateTodos(fetchedTodos)
+            updateTodos(fetchedTodos.sort((a: Todo, b: Todo) => {return b.id - a.id}))
           }
         }
       )
@@ -32,5 +38,3 @@ function App() {
     </>
   )
 }
-
-export default App

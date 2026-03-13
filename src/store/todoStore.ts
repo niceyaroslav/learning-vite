@@ -1,4 +1,5 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
+import { fetchTodos, sendTodo, deleteTodo } from '../api/todos.ts';
 
 export type Todo = {
   userId: number
@@ -8,17 +9,17 @@ export type Todo = {
 }
 
 type TodoStore = {
-    todos: Array<Todo>
-    updateTodos: (newTodos: Array<Todo>) => void
+    todos: Todo[]
+    updateTodos: (newTodos: Todo[]) => void
     removeTodo: (todo: Todo) => void
     addTodo: (todo: string) => void
     toggleTodoCompleteness: (todo: Todo) => void 
 }
 
 
-const getNextId = (useUserIds: boolean, todos: Array<Todo>) => {
+const getNextId = (useUserIds: boolean, todos: Todo[]) => {
 
-  let ids: Array<number> = []
+  let ids: number[] = []
   if (!useUserIds) {
       ids = todos.map((td) => td.id)
   }   else {
@@ -28,7 +29,7 @@ const getNextId = (useUserIds: boolean, todos: Array<Todo>) => {
   return maxId + 1 
 }
 
-function filterTodos (todo: Todo, todos: Array<Todo>) {
+function filterTodos (todo: Todo, todos: Todo[]) {
   let filteredTodos = todos.filter(
     item => (item.title !== todo.title || item.id !== todo.id)
   )
@@ -37,9 +38,10 @@ function filterTodos (todo: Todo, todos: Array<Todo>) {
 
 export const useTodo = create<TodoStore>((set) => ({
   todos: [],
-  updateTodos: (newTodos: Array<Todo>) => set({ todos: newTodos }),
+  updateTodos: (newTodos: Todo[]) => set({ todos: newTodos }),
   removeTodo: (todo: Todo) => set(
     (state) => {
+      deleteTodo(todo.id)
       return {todos: filterTodos(todo, state.todos)}
     }
   ),
@@ -48,29 +50,37 @@ export const useTodo = create<TodoStore>((set) => ({
       let newId = getNextId(false, state.todos)
       let newUserId = getNextId(true, state.todos)
       
-      let newTodos
       let newTodo = {
           'userId': newUserId,
           'title': todo,
           'id': newId,
           'completed': false
       }
-      if (todo !== '') {
-        newTodos = [newTodo, ...state.todos]
+      
+      let newTodos = [...state.todos]
+      if (todo) {
+        if (todo.trim() !== '') {
+          sendTodo(JSON.stringify(newTodo), "POST")
+          newTodos = [newTodo, ...state.todos]
+        }
       }
       return {todos: newTodos}
     }
   ),
   toggleTodoCompleteness: (todo: Todo) => set(
     (state) => {
+      let updatedItem
       let newTodos = state.todos.map(
         (item) => {
           if (item.title === todo.title && item.id === todo.id) {
-            item.completed = !item.completed
+            updatedItem = {...todo}
+            updatedItem.completed = !item.completed
+            return updatedItem
           }
           return item
         }
       )
+      sendTodo(JSON.stringify(updatedItem), 'PUT')
       return {todos: newTodos}
     }
   )
