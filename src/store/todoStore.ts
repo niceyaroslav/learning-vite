@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchTodos, sendTodo, deleteTodo } from '../api/todos.ts';
+import { sendTodo, deleteTodo } from '../api/todos.ts';
 
 export type Todo = {
   userId: number
